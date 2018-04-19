@@ -1,1 +1,1 @@
-# mybot
+# Mini chat-bot

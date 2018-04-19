@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" lang="ru">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <title>MyBot</title>
+    <style>
+        .container {
+            max-width: 1256px;
+            margin: 0 auto;
+        }
+        .test-form {
+            width: 100%;
+        }
+        .form-item {
+            width: 100%;
+            margin: 16px 0;
+        }
+        .console {
+            margin-top: 64px;
+            width: 100%;
+            background: black;
+            font-size: 12pt;
+            color: white;
+        }
+        .console__container {
+            overflow: auto;
+            height: 420px;
+        }
+        .console__header {
+            width: 100%;
+            padding: 4px 16px;
+            margin-bottom: 6px;
+            background: #626262;
+            box-sizing: border-box;
+        }
+        .console__line {
+            box-sizing: border-box;
+            padding: 4px 16px;
+        }
+        .console__title {
+            color: #23ce34;
+        }
+        .history {
+            margin-top: 64px;
+            padding: 8px 16px;
+            width: 30%;
+        }
+        .flex-container {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Bot Testing</h1>
+    <p>
+
+    </p>
+    <form class="test-form">
+        <label for="vkID">My ID</label>
+        <select id="vkID">
+            <option value="223946696" selected>223946696</option>
+        </select>
+        <textarea id="message" rows="5" class="form-item" placeholder="Message"></textarea>
+        <button type="button" id="btn-send" class="btn-send">Отправить</button>
+        <button type="button" id="btn-clear">Очистить</button>
+    </form>
+
+    <div class="flex-container">
+        <div class="console">
+            <header class="console__header">
+                Console
+            </header>
+            <section id="console-content" class="console__container">
+                <div class="console__line">
+                    /** Here are the answers from the server **/
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+<script>
+    function log(who, msg) {
+        var cons = document.getElementById('console-content');
+        cons.innerHTML += `
+            <div class="console__line">
+                <span class="console__title"> $${who} > </span> ${msg}
+            </div>
+        `;
+        $('#console-content').scrollTop(document.getElementById('console-content').scrollHeight);
+    }
+    function message(id, msg) {
+        $.ajax({
+            type: "POST",
+            url: '/index.php',
+            data: {"type":"message_new","object":{"id":4832,"date":1505290381,"out":0,"user_id":id,"read_state":0,"title":"","body":msg},"group_id":153298270},
+            success: function (res) {
+                res = res.replace(/\r\n|\r|\n/g,"<br/>");
+                console.log(res);
+                log('vk-bot', res);
+            }
+        });
+    }
+    function send() {
+        var myID = $('#vkID').val();
+        message(myID, document.getElementById('message').value);
+    }
+    document.getElementById('message').onkeydown = (e) => {
+        if(e.keyCode == 13) {
+            send();
+            log('my', document.getElementById('message').value);
+            setTimeout(() => {
+                document.getElementById('message').value = '';
+        }, 100);
+        }
+    };
+    document.getElementById('btn-send').onclick = () => {
+        send();
+        log('my', document.getElementById('message').value);
+        document.getElementById('message').value = '';
+    };
+    document.getElementById('btn-clear').onclick = () => {
+        document.getElementById('console-content').innerHTML = `
+        <div class="console__line">
+            /** Here are the answers from the server **/
+        </div>
+        `;
+    }
+</script>
+</body>
+</html>
